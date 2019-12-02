@@ -12,7 +12,7 @@ import os
 import time
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, OUTPUT_D, SpeedPercent, MoveTank
 
-sound =Sound()
+sound = Sound()
 
 
 #flashy = Leds()
@@ -39,7 +39,9 @@ right_rear = LargeMotor(OUTPUT_D)
 
 gyro = sensors.GyroSensor()
 
+front_ultra= sensors.UltrasonicSensor('in1')
 
+left_ultra= sensors.UltrasonicSensor('in2')
 def left_turn():
     a = gyro.value()
     while  (gyro.value() > (a - 90)):    

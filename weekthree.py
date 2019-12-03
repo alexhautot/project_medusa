@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 
-
+import threading
 import datetime
 #import numpy as np
 import ev3dev2.sensor.lego as sensors
 import ev3dev2.motor as motors
 from ev3dev2.sound import Sound
 from ev3dev.ev3 import Leds
+from ev3dev2.sensor.lego import UltrasonicSensor
 import random
 import os
 import time
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, OUTPUT_D, SpeedPercent, MoveTank
+
+import mathystuff as ms
+
 
 sound = Sound()
 
@@ -29,42 +33,93 @@ def flashy():
 
 #flashy()
 
-left_rear = LargeMotor(OUTPUT_A)
+lf = LargeMotor(OUTPUT_A)
 
-left_front = LargeMotor(OUTPUT_B)
+lr = LargeMotor(OUTPUT_B)
 
-right_front = LargeMotor(OUTPUT_C)
+rf = LargeMotor(OUTPUT_C)
 
-right_rear = LargeMotor(OUTPUT_D)
+rr = LargeMotor(OUTPUT_D)
+
+medusa_forward = MoveTank(OUTPUT_A, OUTPUT_C)
+
+medusa_rear = MoveTank(OUTPUT_B, OUTPUT_D)
+
 
 gyro = sensors.GyroSensor()
 
-front_ultra= sensors.UltrasonicSensor('in1')
+#ultra = UltrasonicSensor('in1')
 
-left_ultra= sensors.UltrasonicSensor('in2')
+front_ultra= sensors.UltrasonicSensor('in1')
+#front_ultra.mode='US-DIST-MS'
+right_ultra= sensors.UltrasonicSensor('in2')
+
 def left_turn():
     a = gyro.value()
     while  (gyro.value() > (a - 90)):    
-        left_front.run_forever(speed_sp=100)
-        left_rear.run_forever(speed_sp=-100)
-        right_front.run_forever(speed_sp=-100)
-        right_rear.run_forever(speed_sp=100)
-    left_front.run_forever(speed_sp=0)
-    left_rear.run_forever(speed_sp=0)
-    right_front.run_forever(speed_sp=0)
-    right_rear.run_forever(speed_sp=0)
-    
+        lf.run_forever(speed_sp=25)
+        lr.run_forever(speed_sp=25)
+        rf.run_forever(speed_sp=-25)
+        rr.run_forever(speed_sp=-25)
+    lf.run_forever(speed_sp=0)
+    lr.run_forever(speed_sp=0)
+    rf.run_forever(speed_sp=0)
+    rr.run_forever(speed_sp=0)
+    overshoot = a + gyro.value()
+    print(overshoot)
+    time.sleep(15)
+
+def right_turn():
+    a = gyro.value()
+    while  (gyro.value() < (a + 90)):    
+        lf.run_forever(speed_sp=-25)
+        lr.run_forever(speed_sp=-25)
+        rf.run_forever(speed_sp=25)
+        rr.run_forever(speed_sp=25)
+    lf.run_forever(speed_sp=0)
+    lr.run_forever(speed_sp=0)
+    rf.run_forever(speed_sp=0)
+    rr.run_forever(speed_sp=0)
+    overshoot = a + gyro.value()
+    print(overshoot)
+    time.sleep(15)
 
 
+rotes = 200
+forward_speed  = 200
+# Forward function moves Medusa forward by approx 10 cm
 def forward():
-    left_rear.run_to_rel_pos(position_sp=-720, speed_sp=-450, stop_action="brake")
-    left_front.run_to_rel_pos(position_sp=720, speed_sp=450, stop_action="brake")
-    right_front.run_to_rel_pos(position_sp=720, speed_sp=450, stop_action="brake")
-    right_rear.run_to_rel_pos(position_sp=-720, speed_sp=-450, stop_action="brake")
+        
+    lr.run_to_rel_pos(position_sp=rotes, speed_sp=forward_speed, stop_action="brake")
+    lf.run_to_rel_pos(position_sp=rotes, speed_sp=forward_speed, stop_action="brake")
+    rf.run_to_rel_pos(position_sp=rotes, speed_sp=forward_speed, stop_action="brake")
+    rr.run_to_rel_pos(position_sp=rotes, speed_sp=forward_speed, stop_action="brake")
+    time.sleep(3)
+
     
-#tank_front =MoveTank(OUTPUT_B,OUTPUT_C)
-#tank_rear = MoveTank(OUTPUT_A, OUTPUT_D)
-#tank_front.on_for_seconds(SpeedPercent(75), SpeedPercent(75),5)
-#tank_rear.on_for_seconds(SpeedPercent(-75), SpeedPercent(-75),5)
 
 left_turn()
+
+
+right_turn()
+
+
+
+#while front_ultra.distance_centimeters > 20:
+#    forward()
+
+#
+
+grid_position = [1,1]
+
+#a = np.zeros((40,40))
+
+#a[0,0] = 1
+#a[1,0] = 1
+#a[0,1] = 1
+
+
+
+#def inspect_walls():
+#    if side_sens.distance_centimetres <20:
+

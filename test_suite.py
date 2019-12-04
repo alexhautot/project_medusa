@@ -111,113 +111,40 @@ def flashy():
                     time.sleep(0.5)
                     Leds.all_off()
 
-
-# initialises values for grid walking  - an array of zeros to write to
-# Medusa starts at position 1,1 and must be placed in a corner the zeroth
-# will be walls
-
-# orientation will be one of 4 directions in an x y plane as the Medusa unit
-# only turns at right angles presently
-
-grid_pos = [1,1]
-
-
-orientation = 0
-movements = {0: [0,1], 1:[1,0],3:[0,-1],4:[-1,0]}
-
-a = np.zeros((40,40))
-
-a[0,0] = 1
-a[1,0] = 1
-a[0,1] = 1
-
-orientation = 0
-movements = {0: [0,1], 1:[1,0],2:[0,-1],3:[-1,0]}
-
-
-
-fla = Thread(target=flashy)
-
+print("testing beep")
 sou = Thread(target=beeeeeep)
 sou.start()
+
+time.sleep(10)
+
+print("testing flash")
+fla = Thread(target=flashy)
+
 fla.start()
-#takes orientation and position and moves then adjusts grid based on what it sees
+time.sleep(10)
 
-def move(orientation,grid_pos, a):
+print("now flashing and beeping for remainder of tests.  You asked for this.")
+
+print("testing forward motion")
+forward()
+time.sleep(10)
+
+print("testing left turn")
+left_turn()
+time.sleep(10)
+
+print("testing Right turn")
+right_turn()
+time.sleep(10)
+
+print("testing object detection - will drive forward until it reaches an obsticle")
+while front_ultra.distance_centimeters > 20:
     forward()
-    
-    mov = movements[orientation]
-    grid_pos[0]+=mov[0]
-    grid_pos[1]+=mov[1]
-    if right_ultra.distance_centimeters < 20 :
-        a[grid_pos[0]-1,grid_pos[1]] = 1
-    #if right_ultra.distance_centimeters > 20 :
-    #    if query_table() == 1:
-    #        a[grid_pos[0]-1,grid_pos[1]] = 2
-    if front_ultra.distance_centimeters > 20:
-        a[grid_pos[0]+mov[0],grid_pos[1]+mov[1]]=1
-    return a
-    
+time.sleep(10)
 
-# Takes orientation and position and performs a left turn on map and in the flesh
-def left_function(orientation, grid_pos):
-    orientation = orientation + 1
-    if orientation == 4:
-        orientation = 0
-    left_turn()
-    return orientation 
+thread_bool = false
 
-# Takes orientation and position and performs a right turn on map and in the flesh
-def right_function(orientation, grid_pos):
-    orientation -=1
-    if orientation == -1:
-        orientation = 3
-    right_turn()
-    return orientation
-
-def draw_that_map(map):
-    im = Image.new('RGB', (500,400), color = 'blue')
-    d = ImageDraw.Draw(im)
-    d.text((10,10), 'blue prince', fill = 'white')
-    d.text((10,30), 'scale = 1cm = 1px', fill = 'white')
-    for i in range(1,(map.shape[0]-1)):
-        x = i*10 +100
-        for j in range(1,(map.shape[1]-1)):
-
-            y = j*10
-            if (map[i,j] == 1 and (map[i-1,j]==1 or map[i+1,j]==1)):
-                draw = ImageDraw.Draw(im)
-                draw.line((x, y) + (x+10,y), fill='white')
-            if (map[i,j] == 1 and (map[i,j-1]==1 or map[i,j+1]==1)):
-                draw = ImageDraw.Draw(im)
-                draw.line((x, y) + (x,y+10), fill='white')
-        
-    im.save('blue_prints.png')
-
-
-for i in range(0):
-    while front_ultra.distance_centimeters > 20 and right_ultra.distance_centimeters < 20:
-        a = move(orientation,grid_pos)
-    
-    
-    if front_ultra.distance_centimeters < 20 :
-        orientation = left_function(orientation,grid_pos)
-        print('Orientation')
-        print(orientation)
-    
-    #if front_ultra.distance_centimeters > 20 and right_ultra.distance_centimeters > 20:
-    #    move(orientation,grid_pos)
-    #    
-    #    right_function(orientation,grid_pos)
-    #    move(orientation,grid_pos)
-    #    move(orientation,grid_pos)
-
-
-draw_that_map(a)
+print("tests completed")
 
 
 
-#def inspect_walls():
-#    if side_sens.distance_centimetres <20:
-
-thread_bool = False 

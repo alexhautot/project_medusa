@@ -2,12 +2,12 @@ from PIL import Image, ImageDraw
 import numpy as np 
 
 
-a = np.zeros((10,10))
+a = np.zeros((40,40))
 
 a[:,2:3] = 1
 a[2:3,:] = 1
 
-im = Image.new('RGB', (200,100), color = 'blue')
+im = Image.new('RGB', (500,400), color = 'blue')
 d = ImageDraw.Draw(im)
 d.text((10,10), 'blue prince', fill = 'white')
 d.text((10,30), 'scale = 1cm = 1px', fill = 'white')

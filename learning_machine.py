@@ -12,8 +12,8 @@ import random
 import os
 import time
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, OUTPUT_D, SpeedPercent, MoveTank
-from PIL import Image, ImageDraw
-#import mathystuff as ms
+
+import mathystuff as ms
 
 
 # Initialising sensors and motors
@@ -29,11 +29,11 @@ rr = LargeMotor(OUTPUT_D)
 gyro = sensors.GyroSensor()
 
 front_ultra= sensors.UltrasonicSensor('in1')
-#front_ultra.mode='US-DIST-MS'
+front_ultra.mode='US-DIST-MS'
 right_ultra= sensors.UltrasonicSensor('in2')
-#right_ultra.mode='US-DIST-MS'
-#up_ultra = sensors.UltrasonicSensor('in3')
-#up_ultra.mode='US-DIST-MS'
+right_ultra.mode='US-DIST-MS'
+up_ultra = = sensors.UltrasonicSensor('in3')
+up_ultra.mode='US-DIST-MS'
 
 # turns medusa unit left - currently hard coded at 90 degrees
 def left_turn():
@@ -49,7 +49,7 @@ def left_turn():
     rr.run_forever(speed_sp=0)
     overshoot = a + gyro.value()
     print(overshoot)
-    time.sleep(1)
+    time.sleep(15)
 
 # turns medusa unit right - currently hard coded at 90 degrees
 def right_turn():
@@ -65,13 +65,23 @@ def right_turn():
     rr.run_forever(speed_sp=0)
     overshoot = a + gyro.value()
     print(overshoot)
-    time.sleep(1)
+    time.sleep(15)
 
 
 # Forward function moves Medusa forward by approx 10 cm
 def forward():
     rotes = 200
     forward_speed  = 200
+    lr.run_to_rel_pos(position_sp=rotes, speed_sp=forward_speed, stop_action="brake")
+    lf.run_to_rel_pos(position_sp=rotes, speed_sp=forward_speed, stop_action="brake")
+    rf.run_to_rel_pos(position_sp=rotes, speed_sp=forward_speed, stop_action="brake")
+    rr.run_to_rel_pos(position_sp=rotes, speed_sp=forward_speed, stop_action="brake")
+    time.sleep(3)
+
+# Forward function moves Medusa forward by approx 10 cm
+def backward():
+    rotes = -200
+    forward_speed  = -200
     lr.run_to_rel_pos(position_sp=rotes, speed_sp=forward_speed, stop_action="brake")
     lf.run_to_rel_pos(position_sp=rotes, speed_sp=forward_speed, stop_action="brake")
     rf.run_to_rel_pos(position_sp=rotes, speed_sp=forward_speed, stop_action="brake")
@@ -90,13 +100,23 @@ def query_table():
     left_turn()
     return val
 
-# Customer requested flashing lights and beeping to alert nearby people of it's operation 
-def flashy():
-    sound = Sound()
-    Leds.all_off()
-    sound.speak('beep beep beep')
-    for i in range(10):
-        for group in (Leds.LEFT, Leds.RIGHT):
-                Leds.set_color(group, Leds.YELLOW)
-                time.sleep(0.5)
-                Leds.all_off()
+
+
+grid_pos = [1,1]
+
+orientation = 0
+movements = {0: [0,1], 1:[1,0],3:[0,-1],4:[-1,0]}
+
+a = np.zeros((400,400))
+
+a[0,0] = 1
+a[1,0] = 1
+a[0,1] = 1
+
+orientation = 0
+movements = {0: [0,1], 1:[1,0],2:[0,-1],3:[-1,0]}
+
+
+actions = [forward, turn_left, turn_right, backward]
+numactions = len(actions)
+action_names = (a.__name__ for a in actions)
